@@ -28,6 +28,7 @@ var createScene = async function () {
         createSkybox: false,
         environmentIntensity: 1.0
    });
+   scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), new BABYLON.CannonJSPlugin());
 
    // Lights (keep if you like—you now have the HDRI + these)
    const light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(0, 100, 100), scene);
@@ -132,30 +133,40 @@ var createScene = async function () {
    4.  WEB‑XR SETUP (unchanged)
     ———————————————————— */
     
-    const xrHelper = await scene.createDefaultXRExperienceAsync({
-       floorMeshes: [ground]
-    });
+     if (navigator.xr) {
+         try {
+             const xrHelper = await scene.createDefaultXRExperienceAsync({
+                 floorMeshes: [ground]
+             });
 
-    let grabbedMesh = null;
-    xrHelper.input.onControllerAddedObservable.add((controller) => {
-    controller.onMotionControllerInitObservable.add((mc) => {
-    if (mc.handness === "left") {
-        const trigger = mc.getComponent(mc.getComponentIds()[0]); // xr-standard-trigger
-        trigger.onButtonStateChangedObservable.add(() => {
-        if (trigger.changes.pressed) {
-            if (trigger.pressed) {
-              grabbedMesh = xrHelper.pointerSelection.getMeshUnderPointer(controller.uniqueId);
-              if (grabbedMesh && grabbedMesh !== ground) {
-                grabbedMesh.setParent(mc.rootMesh); // grab
-              }
-              } else {
-                 grabbedMesh && grabbedMesh.setParent(null); // release
-              }
-        }
-        });
-                                }
-    });
-    });
+             if (xrHelper.input) {
+                 let grabbedMesh = null;
+                 xrHelper.input.onControllerAddedObservable.add((controller) => {
+                     controller.onMotionControllerInitObservable.add((mc) => {
+                         if (mc.handness === "left") {
+                             const trigger = mc.getComponent(mc.getComponentIds()[0]);
+                             trigger.onButtonStateChangedObservable.add(() => {
+                                 if (trigger.changes.pressed) {
+                                     if (trigger.pressed) {
+                                         grabbedMesh = xrHelper.pointerSelection.getMeshUnderPointer(controller.uniqueId);
+                                         if (grabbedMesh && grabbedMesh !== ground) {
+                                             grabbedMesh.setParent(mc.rootMesh);
+                                         }
+                                     } else {
+                                         grabbedMesh && grabbedMesh.setParent(null);
+                                     }
+                                 }
+                             });
+                         }
+                     });
+                 });
+             }
+         } catch (error) {
+             console.warn("WebXR setup failed; running without XR controls.", error);
+         }
+     } else {
+         console.info("WebXR is not supported in this browser; running without XR controls.");
+     }
 
     return scene;
     };
