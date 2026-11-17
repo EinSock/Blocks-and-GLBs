@@ -110,25 +110,6 @@ var createScene = async function () {
     }
    );
 
-   BABYLON.SceneLoader.ImportMesh("", "./", "pancake.glb", scene,
-   function (meshes) {
-        const heart = meshes[0];
-
-        // Position & scale
-        heart.position.set(30, 0.1, 30);
-        heart.scaling.setAll(50);        // make it bigger
-        heart.isPickable = true;        // allow grabbing
-
-        /* DEBUG COLOR (uncomment if model still shows black)
-        const mat = new BABYLON.StandardMaterial("heartMat", scene);
-        mat.diffuseColor = new BABYLON.Color3(0.8, 0.1, 0.1);
-        heart.material = mat;
-         */
-
-        console.log("Pancake loaded!");
-    }
-   );
-
    /* ———————————————————
    4.  WEB‑XR SETUP (unchanged)
     ———————————————————— */
