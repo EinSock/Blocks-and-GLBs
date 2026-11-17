@@ -65,8 +65,8 @@ var createScene = async function () {
    const sphere1 = BABYLON.Mesh.CreateSphere("sphere1", 2, 32, scene);
     sphere1.position.set(20, 10, 5);
     const matsphere1 = new BABYLON.StandardMaterial("matsphere1", scene);
-    matsphere1.diffuseColor = new BABYLON.Color4(0.1, 1, 0.1);
-    matsphere1.material = matsphere1;
+    matsphere1.diffuseColor = new BABYLON.Color3(0.1, 1, 0.1);
+    sphere1.material = matsphere1;
 
    /* ———————————————————
    3.  IMPORT HEART MODEL
@@ -109,7 +109,7 @@ var createScene = async function () {
     }
    );
 
-   BABYLON.SceneLoader.ImportMesh("", "./", "Pancake.glb", scene,
+   BABYLON.SceneLoader.ImportMesh("", "./", "pancake.glb", scene,
    function (meshes) {
         const heart = meshes[0];
 
@@ -172,18 +172,22 @@ var createScene = async function () {
                         }
         }
 
-        window.engine = await asyncEngineCreation();
+        engine = await asyncEngineCreation();
+        window.engine = engine;
                     
         const engineOptions = window.engine.getCreationOptions?.();
         if (!engineOptions || engineOptions.audioEngine !== false) {
                         
         }
         if (!engine) throw 'engine should not be null.';
+        scene = await createScene();
+        sceneToRender = scene;
         startRenderLoop(engine, canvas);
-        window.scene = createScene();};
-        initFunction().then(() => {scene.then(returnedScene => { sceneToRender = returnedScene; });
-        
-        });
+    };
+
+    window.initFunction().catch(function (error) {
+        console.error("Unable to initialize the Babylon.js scene.", error);
+    });
 
         // Resize
         window.addEventListener("resize", function () {
